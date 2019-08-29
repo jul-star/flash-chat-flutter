@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flash_chat/screens/login_screen.dart';
 import 'package:flash_chat/screens/registration_screen.dart';
 import 'package:flash_chat/screens/chat_screen.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:flash_chat/widgets/rounded_button.dart';
 
 class WelcomeScreen extends StatefulWidget {
   static String id = 'welcome';
@@ -20,6 +22,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     with SingleTickerProviderStateMixin {
   AnimationController controller;
   Animation animation;
+  Animation color;
 
   @override
   void initState() {
@@ -35,18 +38,30 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     );
     animation = CurvedAnimation(parent: controller, curve: Curves.decelerate);
     controller.forward();
+    controller.addStatusListener((status) {
+      print('Status: $status');
+    });
     controller.addListener(() {
       setState(() {});
 //      print(controller.value);
       print(animation.value);
     });
+    color =
+        ColorTween(begin: Colors.white, end: Colors.blue).animate(controller);
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     print('Welcome page');
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: color.value,
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
@@ -62,62 +77,49 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     height: animation.value * 100,
                   ),
                 ),
-                Text(
-                  animation.value.toStringAsPrecision(2),
-                  style: TextStyle(
+                TypewriterAnimatedTextKit(
+                  text: ['Flash'],
+                  textStyle: TextStyle(
                     fontSize: 30.0,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
+//                Text(
+//                  animation.value.toStringAsPrecision(2),
+//                  style: TextStyle(
+//                    fontSize: 30.0,
+//                    fontWeight: FontWeight.w900,
+//                  ),
+//                ),
               ],
             ),
             SizedBox(
               height: 48.0,
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 16.0),
-              child: Material(
-                elevation: 5.0,
-                color: Colors.lightBlueAccent,
-                borderRadius: BorderRadius.circular(30.0),
-                child: MaterialButton(
-                  onPressed: () {
-//                    Navigator.push(context,
-//                        MaterialPageRoute(builder: widget.routes['login']));
-                    Navigator.pushNamed(context, LoginScreen.id);
-                  },
-                  minWidth: 200.0,
-                  height: 42.0,
-                  child: Text(
-                    'Log In',
-                  ),
-                ),
-              ),
+            RoundedButton(
+              title: 'Log In',
+              onPressed: gotoLogin,
+              color: Colors.lightBlueAccent,
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 16.0),
-              child: Material(
-                color: Colors.blueAccent,
-                borderRadius: BorderRadius.circular(30.0),
-                elevation: 5.0,
-                child: MaterialButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: widget.routes['registration']));
-                  },
-                  minWidth: 200.0,
-                  height: 42.0,
-                  child: Text(
-                    'Register',
-                  ),
-                ),
-              ),
-            ),
+            RoundedButton(
+                title: 'Register',
+                onPressed: gotoRegistration,
+                color: Colors.blueAccent),
           ],
         ),
       ),
     );
+  }
+
+  void gotoLogin() {
+    gotoPage(LoginScreen.id);
+  }
+
+  void gotoRegistration() {
+    gotoPage(RegistrationScreen.id);
+  }
+
+  void gotoPage(String toPage) {
+    Navigator.pushNamed(context, toPage);
   }
 }
