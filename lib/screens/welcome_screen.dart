@@ -28,6 +28,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   void initState() {
     // TODO: implement initState
     super.initState();
+    print('----------Welcome screen ---------------');
     controller = AnimationController(
       duration: Duration(
         seconds: 5,
@@ -59,7 +60,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    print('Welcome page');
+    print('Welcome page build');
     return Scaffold(
       backgroundColor: color.value,
       body: Padding(

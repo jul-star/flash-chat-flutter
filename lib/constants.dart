@@ -34,3 +34,12 @@ const kInputDecoration = InputDecoration(
     borderRadius: BorderRadius.all(Radius.circular(32.0)),
   ),
 );
+
+const kTextFieldStyle =
+    TextStyle(color: Colors.black, fontFamily: 'Arial', fontSize: 18.0);
+
+const kPasswordTextFieldStyle = TextStyle(
+  color: Colors.red,
+  fontFamily: 'Arial',
+  fontSize: 18.0,
+);

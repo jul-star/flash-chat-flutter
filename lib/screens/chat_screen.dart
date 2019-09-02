@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flash_chat/constants.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatScreen extends StatefulWidget {
   static String id = 'chat';
@@ -9,6 +11,49 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  final _auth = FirebaseAuth.instance;
+  FirebaseUser loggedUser;
+  final _store = Firestore.instance;
+  String _messageText;
+  String _name = '';
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getCurrentUser();
+  }
+
+  void getCurrentUser() async {
+    try {
+      final user = await _auth.currentUser();
+      if (user != null) {
+        loggedUser = user;
+        setState(() {
+          _name = user.email;
+        });
+        messagesStream();
+        print('-------------Chat screen------------');
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void getMessages() async {
+    final messages = await _store.collection('messages').getDocuments();
+    for (var message in messages.documents) {
+      print(message.data['text']);
+    }
+  }
+
+  void messagesStream() async {
+    await for (var snapshot in _store.collection('messages').snapshots()) {
+      for (var message in snapshot.documents) {
+        print(message.data['text']);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,10 +63,11 @@ class _ChatScreenState extends State<ChatScreen> {
           IconButton(
               icon: Icon(Icons.close),
               onPressed: () {
-                //Implement logout functionality
+                _auth.signOut();
+                Navigator.pop(context);
               }),
         ],
-        title: Text('⚡️Chat'),
+        title: Text('⚡️Chat $_name'),
         backgroundColor: Colors.lightBlueAccent,
       ),
       body: SafeArea(
@@ -37,14 +83,22 @@ class _ChatScreenState extends State<ChatScreen> {
                   Expanded(
                     child: TextField(
                       onChanged: (value) {
-                        //Do something with the user input.
+                        _messageText = value;
                       },
                       decoration: kMessageTextFieldDecoration,
                     ),
                   ),
                   FlatButton(
                     onPressed: () {
-                      //Implement send functionality.
+                      print('Message: $_messageText');
+                      print('User: $_name');
+                      if (loggedUser != null) {
+                        _store.collection('messages').add({
+                          'sender': _name,
+                          'text': _messageText,
+                          'utc': DateTime.now().toIso8601String()
+                        });
+                      }
                     },
                     child: Text(
                       'Send',
