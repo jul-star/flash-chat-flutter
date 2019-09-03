@@ -19,7 +19,6 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _showSpinner = false;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     print('----------Login screen ---------------');
   }
