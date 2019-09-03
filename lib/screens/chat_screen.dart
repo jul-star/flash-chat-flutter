@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flash_chat/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flash_chat/widgets/firebase_streambuilder.dart';
 
 class ChatScreen extends StatefulWidget {
   static String id = 'chat';
@@ -16,6 +17,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final _store = Firestore.instance;
   String _messageText;
   String _name = '';
+  TextEditingController _controller = new TextEditingController();
   @override
   void initState() {
     // TODO: implement initState
@@ -57,6 +59,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         leading: null,
         actions: <Widget>[
@@ -72,9 +75,10 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: SafeArea(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+            new FirebaseStreamBuilder(store: _store, user: _name),
             Container(
               decoration: kMessageContainerDecoration,
               child: Row(
@@ -82,6 +86,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: <Widget>[
                   Expanded(
                     child: TextField(
+                      style: TextStyle(
+                        color: Colors.black,
+                      ),
+                      controller: _controller,
                       onChanged: (value) {
                         _messageText = value;
                       },
@@ -90,8 +98,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   FlatButton(
                     onPressed: () {
-                      print('Message: $_messageText');
-                      print('User: $_name');
+//                      print('Message: $_messageText');
+//                      print('User: $_name');
                       if (loggedUser != null) {
                         _store.collection('messages').add({
                           'sender': _name,
@@ -99,6 +107,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           'utc': DateTime.now().toIso8601String()
                         });
                       }
+                      _controller.clear();
                     },
                     child: Text(
                       'Send',
